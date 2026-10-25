@@ -2,9 +2,14 @@
 
 针对北美/海外区小红书账号（自动跳转至 **`https://www.rednote.com`**）适配的 MCP (Model Context Protocol) 服务端与登录工具。
 
+> **致谢与原作者说明 (Credits / Acknowledgements)**  
+> 本项目的工具设计、接口规范及核心思路源自 [**@xpzouying**](https://github.com/xpzouying) 开发的开源项目 [**xpzouying/xiaohongshu-mcp**](https://github.com/xpzouying/xiaohongshu-mcp)。感谢原作者在小红书 MCP 生态上的开创性工作！
+
+---
+
 ## 为什么需要这个适配版？
 
-原版 `xiaohongshu-mcp` 硬编码访问 `https://www.xiaohongshu.com`。对于海外区/北美区（如 `CA`/`US`）小红书账号，扫码登录后会被重定向至 `https://www.rednote.com`，登录 Cookie（`web_session`、`id_token`）均签发在 `.rednote.com` 域名下，导致访问 `xiaohongshu.com` 时始终处于未登录的游客状态。
+原版 [`xpzouying/xiaohongshu-mcp`](https://github.com/xpzouying/xiaohongshu-mcp) 默认访问 `https://www.xiaohongshu.com`。对于海外区/北美区（如 `CA`/`US`）小红书账号，扫码登录后会被重定向至 `https://www.rednote.com`，登录 Cookie（`web_session`、`id_token`）均签发在 `.rednote.com` 域名下，导致访问 `xiaohongshu.com` 时始终处于未登录的游客状态。
 
 本项目直接对接 **`https://www.rednote.com`**，并默认启用**非无头模式（可见浏览器窗口）**，降低风控拦截概率并支持手动处理安全验证。
 
@@ -76,3 +81,10 @@ pip install -r requirements.txt
 ### 环境变量（可选）
 
 - `REDNOTE_HEADLESS`：设为 `true` 时使用无头模式，默认 `false`（可见窗口模式）。
+
+---
+
+## 致谢 (Acknowledgements)
+
+- 原项目：[**xpzouying/xiaohongshu-mcp**](https://github.com/xpzouying/xiaohongshu-mcp)
+- 原作者：[**@xpzouying**](https://github.com/xpzouying)
