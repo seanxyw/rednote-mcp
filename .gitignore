@@ -1,0 +1,12 @@
+cookies.json
+cookies.json.*
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+venv
+.venv
+chrome_profile/
+release.json
+xiaohongshu-login-darwin-arm64*
+xiaohongshu-mcp-darwin-arm64*
