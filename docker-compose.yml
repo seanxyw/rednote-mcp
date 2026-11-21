@@ -1,0 +1,19 @@
+services:
+  rednote-mcp:
+    image: ghcr.io/seanxyw/rednote-mcp:latest
+    # To build locally instead of pulling from GHCR, uncomment:
+    # build: .
+    container_name: rednote-mcp
+    restart: unless-stopped
+    shm_size: "1gb"
+    ports:
+      # Localhost only by default; expose over your private network (e.g. Tailscale Serve) if needed
+      - "127.0.0.1:18060:18060"
+    environment:
+      - COOKIES_PATH=/app/data/cookies.json
+      - REDNOTE_HEADLESS=true
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=18060
+    volumes:
+      - ./data:/app/data
+      - ./images:/app/images

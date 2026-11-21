@@ -1,5 +1,9 @@
 cookies.json
 cookies.json.*
+data/
+images/
+.env
+.env.*
 *.log
 __pycache__/
 *.pyc

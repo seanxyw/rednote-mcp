@@ -17,6 +17,11 @@ import httpx
 import websockets
 from mcp.server.fastmcp import FastMCP, Image
 
+try:
+    from mcp.server.transport_security import TransportSecuritySettings
+except ImportError:
+    TransportSecuritySettings = None
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -40,14 +45,21 @@ CHROMIUM_BIN = _find_chromium_bin()
 COOKIES_PATH = os.environ.get("COOKIES_PATH", os.path.join(SCRIPT_DIR, "cookies.json"))
 BASE_URL = "https://www.rednote.com"
 DEFAULT_HEADLESS = os.environ.get("REDNOTE_HEADLESS", "false").lower() in ("1", "true", "yes")
+MCP_HOST = os.environ.get("MCP_HOST", "127.0.0.1")
+MCP_PORT = int(os.environ.get("MCP_PORT", "18060"))
 
-mcp = FastMCP(
-    "xiaohongshu-mcp",
-    host="127.0.0.1",
-    port=18061,
-    streamable_http_path="/mcp",
-    stateless_http=True,
-)
+_fastmcp_kwargs: dict[str, Any] = {
+    "host": MCP_HOST,
+    "port": MCP_PORT,
+    "streamable_http_path": "/mcp",
+    "stateless_http": True,
+}
+if TransportSecuritySettings is not None and MCP_HOST == "0.0.0.0":
+    _fastmcp_kwargs["transport_security"] = TransportSecuritySettings(
+        enable_dns_rebinding_protection=False
+    )
+
+mcp = FastMCP("xiaohongshu-mcp", **_fastmcp_kwargs)
 
 
 class CDPClient:
@@ -102,11 +114,13 @@ class BrowserSession:
             f"--user-data-dir={self.user_data_dir}",
             "--no-first-run",
             "--no-default-browser-check",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
             "--disable-blink-features=AutomationControlled",
             "--window-size=1280,900",
         ]
         if self.headless:
-            args.append("--headless=new")
+            args.extend(["--headless=new", "--disable-gpu"])
         args.append("about:blank")
 
         self.proc = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -173,6 +187,9 @@ class BrowserSession:
             "saved_at": datetime.now(timezone.utc).astimezone().isoformat(),
             "cookies": raw_cookies,
         }
+        parent_dir = os.path.dirname(COOKIES_PATH)
+        if parent_dir:
+            os.makedirs(parent_dir, exist_ok=True)
         with open(COOKIES_PATH, "w", encoding="utf-8") as f:
             json.dump(out_data, f, indent=2, ensure_ascii=False)
 

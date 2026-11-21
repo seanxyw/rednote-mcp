@@ -82,9 +82,34 @@ To check login status only:
 
 ### Environment Variables (Optional)
 
-- `REDNOTE_HEADLESS`: Set to `true` to run Chromium in headless mode (defaults to `false` for visible window mode).
+- `REDNOTE_HEADLESS`: Set to `true` to run Chromium in headless mode (defaults to `false` for visible window mode; `true` in Docker).
 - `CHROMIUM_BIN`: Custom path to the Chromium/Chrome executable.
 - `COOKIES_PATH`: Custom path to `cookies.json`.
+- `MCP_HOST` / `MCP_PORT`: Bind address and port for `streamable-http` mode (defaults to `127.0.0.1` and `18060`).
+
+---
+
+## Docker Deployment (Multi-Arch: `amd64` & `arm64`)
+
+Pre-built multi-architecture Docker images (including native Apple Silicon `linux/arm64`) are published to GHCR:
+
+```bash
+mkdir -p data images
+# Optional: copy an existing cookies.json into ./data/cookies.json
+docker compose up -d
+```
+
+The Streamable HTTP MCP endpoint will listen on `http://127.0.0.1:18060/mcp`.
+
+### Sharing Across Devices Privately with Tailscale Serve
+
+Because the container binds to `127.0.0.1:18060` only, you can expose it privately with automatic HTTPS inside your Tailnet:
+
+```bash
+tailscale serve --bg --https=8443 http://127.0.0.1:18060
+```
+
+Other devices on your Tailnet can then connect to `https://<your-host>.<your-tailnet>.ts.net:8443/mcp` (e.g. via `mcp-remote` for Claude Desktop or directly in HTTP-capable MCP clients). Do **not** expose this server publicly without adding authentication in front of it.
 
 ---
 
@@ -111,6 +136,24 @@ To check login status only:
 
 ## 快速开始
 
+### 方式一：本地运行（stdio）
+
 1. **安装依赖**：`pip install -r requirements.txt`
 2. **扫码登录**：运行 `./login.sh`，在弹出的浏览器窗口中使用 RedNote App 扫码登录，成功后会自动保存 `cookies.json`。
 3. **配置 MCP**：在 `mcp_config.json` 中将 `command` 指向 `/path/to/start_server.sh`。
+
+### 方式二：Docker 部署（支持 `amd64` / `arm64`）
+
+```bash
+mkdir -p data images
+# 可选：把已有 cookies.json 复制到 ./data/cookies.json
+docker compose up -d
+```
+
+容器默认仅绑定 `127.0.0.1:18060/mcp`。如需在多台设备间通过 Tailscale 虚拟内网安全共享（自动 HTTPS）：
+
+```bash
+tailscale serve --bg --https=8443 http://127.0.0.1:18060
+```
+
+然后其他 Tailnet 设备即可连接 `https://<your-host>.<your-tailnet>.ts.net:8443/mcp`（请勿在无鉴权情况下暴露到公网）。

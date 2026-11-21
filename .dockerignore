@@ -1,0 +1,17 @@
+.git
+.gitignore
+.github
+*.log
+__pycache__
+*.pyc
+.DS_Store
+venv
+.venv
+data
+images
+chrome_profile
+cookies.json
+cookies.json.*
+release.json
+xiaohongshu-login-darwin-arm64*
+xiaohongshu-mcp-darwin-arm64*
